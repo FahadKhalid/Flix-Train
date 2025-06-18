@@ -3,4 +3,6 @@ plugins {
     alias(libs.plugins.android.application) apply false
     alias(libs.plugins.kotlin.android) apply false
     alias(libs.plugins.kotlin.compose) apply false
+    alias(libs.plugins.googleDevtoolsKsp) apply false // For Room and Hilt annotation processing
+    alias(libs.plugins.googleDaggerHiltAndroid) apply false // For Dagger Hilt
 }

@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.googleDevtoolsKsp)
+    alias(libs.plugins.googleDaggerHiltAndroid)
 }
 
 android {
@@ -49,6 +51,32 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+
+    // Kotlin Coroutines for asynchronous operations
+    implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.kotlinx.coroutines.core)
+
+    // Retrofit for network calls
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.gson) // For JSON parsing
+
+    // OkHttp for network logging (useful for debugging)
+    implementation(libs.okhttp)
+    implementation(libs.okhttp.logging.interceptor)
+
+    // Room for local database (Offline-First)
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx) // Kotlin extensions for Room
+    ksp(libs.androidx.room.compiler) // KSP for Room annotation processing
+
+    // Dagger Hilt for Dependency Injection
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.android.compiler) // KSP for Hilt annotation processing
+    implementation(libs.androidx.hilt.navigation.compose) // Hilt integration for Compose Navigation
+
+    // Jetpack Compose Navigation
+    implementation(libs.androidx.navigation.compose)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
