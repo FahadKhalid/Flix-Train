@@ -12,7 +12,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.app.flixtrain.ui.theme.FlixTrainMaintainanceTrackerAppTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint // Annotate MainActivity to make it a Hilt entry point
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
