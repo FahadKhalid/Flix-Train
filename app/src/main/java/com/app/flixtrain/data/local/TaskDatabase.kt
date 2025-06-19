@@ -2,6 +2,7 @@ package com.app.flixtrain.data.local
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import com.app.flixtrain.domain.model.Task
 
 /**
  * The Room database for the Train Maintenance Tracker application.
@@ -12,6 +13,6 @@ import androidx.room.RoomDatabase
     version = 1,
     exportSchema = false
 )
-abstract class AppDatabase : RoomDatabase() {
+abstract class TaskDatabase : RoomDatabase() {
     abstract fun taskDao(): TaskDao
 }

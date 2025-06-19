@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import com.app.flixtrain.domain.model.Task
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -22,7 +23,7 @@ interface TaskDao {
     /**
      * Retrieves a single task by its ID.
      */
-    @Query("SELECT * FROM tasks WHERE id = :taskId")
+    @Query("SELECT * FROM tasks WHERE taskId = :taskId")
     fun getTaskById(taskId: String): Flow<Task?>
 
     /**

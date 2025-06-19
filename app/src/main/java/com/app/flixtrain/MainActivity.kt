@@ -1,49 +1,69 @@
 package com.app.flixtrain
 
+import androidx.compose.runtime.Composable
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.app.flixtrain.presentation.navigation.Screen
+import com.app.flixtrain.presentation.ui.TaskDetailScreen
+import com.app.flixtrain.presentation.ui.TasksScreen
 import com.app.flixtrain.ui.theme.FlixTrainMaintainanceTrackerAppTheme
 import dagger.hilt.android.AndroidEntryPoint
 
-@AndroidEntryPoint // Annotate MainActivity to make it a Hilt entry point
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContent {
             FlixTrainMaintainanceTrackerAppTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    TrainMaintenanceAppNavHost()
                 }
             }
         }
     }
 }
 
+/**
+ * The main navigation host for the Train Maintenance Tracker application.
+ */
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+fun TrainMaintenanceAppNavHost() {
+    val navController = rememberNavController()
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    FlixTrainMaintainanceTrackerAppTheme {
-        Greeting("Android")
+    NavHost(
+        navController = navController,
+        startDestination = Screen.TasksList.route
+    ) {
+        // Define the Composable for the Tasks List screen
+        composable(route = Screen.TasksList.route) {
+            TasksScreen(navController = navController)
+        }
+
+        // Define the Composable for the Task Detail screen
+        composable(
+            route = Screen.TaskDetail.route, // Includes the {taskId} argument
+            arguments = listOf(navArgument("taskId") {
+                type = NavType.StringType
+            }) // Define the argument type
+        ) { backStackEntry ->
+            // Extract the taskId from the navigation arguments
+            val taskId = backStackEntry.arguments?.getString("taskId")
+            // Pass taskId to the ViewModel (via Hilt's SavedStateHandle)
+            // Hilt handles the ViewModel instantiation and argument injection
+            TaskDetailScreen(navController = navController)
+        }
     }
 }
