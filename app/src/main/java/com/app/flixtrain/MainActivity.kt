@@ -13,6 +13,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.app.flixtrain.presentation.navigation.NavigationConstants.ARG_TASK_ID
 import com.app.flixtrain.presentation.navigation.Screen
 import com.app.flixtrain.presentation.ui.TaskDetailScreen
 import com.app.flixtrain.presentation.ui.TasksScreen
@@ -55,12 +56,12 @@ fun TrainMaintenanceAppNavHost() {
         // Define the Composable for the Task Detail screen
         composable(
             route = Screen.TaskDetail.route, // Includes the {taskId} argument
-            arguments = listOf(navArgument("taskId") {
+            arguments = listOf(navArgument(ARG_TASK_ID) {
                 type = NavType.StringType
             }) // Define the argument type
         ) { backStackEntry ->
             // Extract the taskId from the navigation arguments
-            val taskId = backStackEntry.arguments?.getString("taskId")
+            backStackEntry.arguments?.getString(ARG_TASK_ID)
             // Pass taskId to the ViewModel (via Hilt's SavedStateHandle)
             // Hilt handles the ViewModel instantiation and argument injection
             TaskDetailScreen(navController = navController)

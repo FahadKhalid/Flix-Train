@@ -10,15 +10,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.app.flixtrain.domain.model.Task
-import com.app.flixtrain.presentation.TaskDetailViewModel
+import com.app.flixtrain.presentation.viewmodel.TaskDetailViewModel
 import com.app.flixtrain.ui.theme.FlixTrainMaintainanceTrackerAppTheme
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.app.flixtrain.R
 
 /**
  * Composable function for displaying the detailed information of a single maintenance task.
@@ -37,8 +38,9 @@ fun TaskDetailScreen(
             TopAppBar(
                 title = {
                     Text(
-                        task?.taskType ?: "Task Details"
-                    )
+                        task?.taskType ?: stringResource(R.string.task_details),
+
+                        )
                 },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
@@ -65,7 +67,7 @@ fun TaskDetailScreen(
                     CircularProgressIndicator(modifier = Modifier.size(48.dp))
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        "Loading task or Task not found.",
+                        stringResource(R.string.loading_tasks),
                         style = MaterialTheme.typography.bodyLarge
                     )
                 }
@@ -103,7 +105,7 @@ fun TaskDetailsCard(task: Task) {
             DetailRow("Priority:", task.priorityLevel)
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = "Description:",
+                text = stringResource(R.string.description_label),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold
             )

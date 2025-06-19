@@ -1,4 +1,4 @@
-package com.app.flixtrain.presentation
+package com.app.flixtrain.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

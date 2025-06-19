@@ -1,10 +1,11 @@
-package com.app.flixtrain.presentation
+package com.app.flixtrain.presentation.viewmodel
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.app.flixtrain.domain.model.Task
 import com.app.flixtrain.domain.usecase.GetTaskByIdUseCase
+import com.app.flixtrain.presentation.navigation.NavigationConstants.ARG_TASK_ID
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -28,7 +29,7 @@ class TaskDetailViewModel @Inject constructor(
 
     init {
         // Retrieve the taskId from navigation arguments
-        val taskId = savedStateHandle.get<String>("taskId")
+        val taskId = savedStateHandle.get<String>(ARG_TASK_ID)
 
         taskId?.let { id ->
             viewModelScope.launch {

@@ -58,7 +58,6 @@ class TaskRepositoryImpl @Inject constructor(
     override suspend fun syncTasks() {
         withContext(ioDispatcher) {
             if (!isNetworkAvailable()) {
-                println("Network not available. Cannot sync tasks.")
                 throw IOException("No internet connection available. Cannot sync data.")
             }
 
@@ -70,7 +69,6 @@ class TaskRepositoryImpl @Inject constructor(
                         taskDao.deleteAllTasks()
                         taskDao.insertAll(tasks)
                     } ?: run {
-                        println("API returned successful response but with empty body or tasks list.")
                         throw IOException("Server returned empty data.")
                     }
                 } else {

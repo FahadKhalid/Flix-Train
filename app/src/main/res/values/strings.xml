@@ -1,3 +1,18 @@
 <resources>
     <string name="app_name">Flix Train Maintainance Tracker App</string>
+    <string name="currently_offline_cached_data">Currently offline.</string>
+    <string name="offline_no_data_initial_sync">No data loaded. Connect to the internet for the initial sync.</string>
+    <string name="no_tasks_found">No tasks found.</string>
+    <string name="error_unknown">An unknown error occurred.</string>
+    <string name="displaying_previous_data_due_to_error">Displaying previous data due to error.</string>
+    <string name="loading_tasks">Loading tasks...</string>
+    <string name="train_maintenance_tasks">Train Maintenance Tasks</string>
+    <string name="refresh_tasks">Refresh Tasks</string>
+    <string name="task_details">Task Details</string>
+    <string name="task_id_label">Task ID:</string>
+    <string name="train_id_label">Train ID:</string>
+    <string name="location_label">Location:</string>
+    <string name="due_date_label">Due Date:</string>
+    <string name="priority_label">Priority:</string>
+    <string name="description_label">Description:</string>
 </resources>

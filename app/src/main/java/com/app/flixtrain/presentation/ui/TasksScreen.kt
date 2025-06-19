@@ -11,20 +11,21 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.app.flixtrain.domain.model.Task
-import com.app.flixtrain.presentation.TasksViewModel
 import com.app.flixtrain.presentation.navigation.Screen
 import com.app.flixtrain.ui.theme.FlixTrainMaintainanceTrackerAppTheme
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.app.flixtrain.R
 import com.app.flixtrain.presentation.common.UiState
+import com.app.flixtrain.presentation.viewmodel.TasksViewModel
 
 /**
  * Composable function for displaying the list of train maintenance tasks.
@@ -56,7 +57,7 @@ fun TasksScreen(
             ) {
                 if (isOfflineMode) {
                     Text(
-                        "Currently offline",
+                        stringResource(R.string.currently_offline_cached_data),
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodyLarge,
                         modifier = Modifier.padding(bottom = 8.dp)
@@ -68,7 +69,7 @@ fun TasksScreen(
                     is UiState.Loading -> {
                         LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
                         Spacer(modifier = Modifier.height(8.dp))
-                        Text("Loading tasks...", style = MaterialTheme.typography.bodyMedium)
+                        Text(stringResource(R.string.loading_tasks), style = MaterialTheme.typography.bodyMedium)
                     }
 
                     is UiState.Success -> {
@@ -77,7 +78,7 @@ fun TasksScreen(
                         if (tasks.isEmpty()) {
                             if (isOfflineMode) {
                                 Text(
-                                    "Connect to the internet for the initial sync.",
+                                    stringResource(R.string.offline_no_data_initial_sync),
                                     color = MaterialTheme.colorScheme.error,
                                     style = MaterialTheme.typography.bodyLarge,
                                     modifier = Modifier.padding(16.dp)
