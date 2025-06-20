@@ -6,11 +6,11 @@ A task management app for tracking and syncing train maintenance tasks using cle
   <tr>
     <td align="center">
       <div><strong>Dark Mode</strong></div>
-      <img src="![OnlineMode.png](OnlineMode.png)" width="300" alt="Online Mode" />
+      <img src="![](/Users/fahad/AndroidStudioProjects/FlixTrainMaintainanceTrackerApp/OnlineMode.png)" width="300" alt="Online Mode" />
     </td>
     <td align="center">
       <div><strong>Light Mode</strong></div>
-      <img src="![OfflineMode.png](OfflineMode.png)" width="300" alt="Offline Mode" />
+      <img src="![](/Users/fahad/AndroidStudioProjects/FlixTrainMaintainanceTrackerApp/OfflineMode.png)" width="300" alt="Offline Mode" />
     </td>
   </tr>
 </table>
