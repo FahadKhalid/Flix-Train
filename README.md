@@ -2,15 +2,28 @@
 
 A task management app for tracking and syncing train maintenance tasks using clean architecture and MVVM in Kotlin.
 
+  <div align="center">
+
+  <h3>📹 Watch the Demo Video</h3>
+
+  <a href="https://github.com/FahadKhalid/Flix-Train/blob/main/Flix.webm" target="_blank">
+    <img src="https://img.shields.io/badge/Click%20to%20Watch-Video-blue?style=for-the-badge&logo=github" alt="Watch Video">
+  </a>
+
+</div>
+
+
+
 <table align="center">
+  
   <tr>
     <td align="center">
-      <div><strong>Dark Mode</strong></div>
-      <img src="![](/Users/fahad/AndroidStudioProjects/FlixTrainMaintainanceTrackerApp/OnlineMode.png)" width="300" alt="Online Mode" />
+      <div><strong>Online Mode</strong></div>
+      <img src="https://github.com/FahadKhalid/Flix-Train/blob/main/Online.png" width="300" alt="Light Mode" />
     </td>
     <td align="center">
-      <div><strong>Light Mode</strong></div>
-      <img src="![](/Users/fahad/AndroidStudioProjects/FlixTrainMaintainanceTrackerApp/OfflineMode.png)" width="300" alt="Offline Mode" />
+      <div><strong>Offline Mode</strong></div>
+      <img src="https://github.com/FahadKhalid/Flix-Train/blob/main/Offline.png" width="300" alt="Dark Mode" />
     </td>
   </tr>
 </table>
@@ -45,7 +58,7 @@ A task management app for tracking and syncing train maintenance tasks using cle
 
 - View all tasks
 - View task details
-- Sync tasks with server
+- Sync tasks with the server
 - Offline support
 
-Let me know if you want to add images, badges, or usage instructions.
+Thnak you!
