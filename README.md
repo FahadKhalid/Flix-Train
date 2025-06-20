@@ -2,6 +2,19 @@
 
 A task management app for tracking and syncing train maintenance tasks using clean architecture and MVVM in Kotlin.
 
+<table align="center">
+  <tr>
+    <td align="center">
+      <div><strong>Dark Mode</strong></div>
+      <img src="![OnlineMode.png](OnlineMode.png)" width="300" alt="Online Mode" />
+    </td>
+    <td align="center">
+      <div><strong>Light Mode</strong></div>
+      <img src="![OfflineMode.png](OfflineMode.png)" width="300" alt="Offline Mode" />
+    </td>
+  </tr>
+</table>
+
 ## 🧱 Architecture
 
 - **MVVM Pattern**
