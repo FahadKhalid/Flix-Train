@@ -3,17 +3,17 @@ package com.app.flixtrain.presentation.navigation
 /**
  * Sealed class defining the navigation routes in the application.
  */
-sealed class Screen(val route: String) {
+sealed class Route(val route: String) {
     /**
      * Route for the list of maintenance tasks.
      */
-    data object TasksList : Screen(NavigationConstants.ROUTE_TASKS_LIST)
+    data object TasksList : Route(NavigationConstants.ROUTE_TASKS_LIST)
 
     /**
      * Route for the detailed view of a single task.
      */
     data object TaskDetail :
-        Screen("${NavigationConstants.ROUTE_TASK_DETAIL}/{${NavigationConstants.ARG_TASK_ID}}") {
+        Route("${NavigationConstants.ROUTE_TASK_DETAIL}/{${NavigationConstants.ARG_TASK_ID}}") {
         /**
          * Creates the full route for navigating to a specific task detail.
          */

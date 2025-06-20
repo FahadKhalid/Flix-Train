@@ -1,4 +1,4 @@
-package com.app.flixtrain.ui.theme
+package com.app.flixtrain.presentation.theme
 
 import android.app.Activity
 import android.os.Build

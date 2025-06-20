@@ -78,6 +78,8 @@ dependencies {
 
     // Jetpack Compose Navigation
     implementation(libs.androidx.navigation.compose)
+    // For log
+    implementation(libs.timber)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

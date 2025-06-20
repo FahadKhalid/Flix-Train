@@ -16,21 +16,15 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
-
-    /**
-     * Used for logging HTTP request and response data, which is very helpful for debugging.
-     */
     @Provides
     @Singleton
     fun provideLoggingInterceptor(): HttpLoggingInterceptor {
         return HttpLoggingInterceptor().apply {
-            level = HttpLoggingInterceptor.Level.BODY
+            level =
+                if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY else HttpLoggingInterceptor.Level.NONE
         }
     }
 
-    /**
-     * Configures the HTTP client with timeouts and adds the logging interceptor.
-     */
     @Provides
     @Singleton
     fun provideOkHttpClient(
@@ -40,16 +34,14 @@ object NetworkModule {
             .addInterceptor(loggingInterceptor)
             .connectTimeout(30, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
-            .writeTimeout(30, TimeUnit.SECONDS)
             .build()
     }
 
-    /**
-     * Configures Retrofit with the base URL, OkHttpClient, and Gson converter factory.
-     */
     @Provides
     @Singleton
-    fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
+    fun provideRetrofit(
+        okHttpClient: OkHttpClient,
+    ): Retrofit {
         return Retrofit.Builder()
             .baseUrl(BuildConfig.BASE_URL)
             .client(okHttpClient)
@@ -57,9 +49,6 @@ object NetworkModule {
             .build()
     }
 
-    /**
-     * Creates the API service using the Retrofit instance.
-     */
     @Provides
     @Singleton
     fun provideTaskApiService(retrofit: Retrofit): TaskApiService {

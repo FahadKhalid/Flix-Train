@@ -12,7 +12,7 @@ import javax.inject.Inject
 class GetTaskByIdUseCase @Inject constructor(
     private val repository: TaskRepository
 ) {
-    operator fun invoke(taskId: String): Flow<Task?> {
+    operator fun invoke(taskId: String): Flow<Task> {
         return repository.getTaskById(taskId)
     }
 }

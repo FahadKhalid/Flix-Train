@@ -12,7 +12,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
+import com.app.flixtrain.presentation.common.UiState
 
 /**
  * ViewModel for displaying the details of a single maintenance task.
@@ -23,23 +25,33 @@ class TaskDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    // MutableStateFlow to hold the selected task details. Nullable as task might not be found.
-    private val _task = MutableStateFlow<Task?>(null)
-    val task: StateFlow<Task?> = _task.asStateFlow()
+    private val _taskState = MutableStateFlow<UiState<Task>>(UiState.Loading)
+    val taskState: StateFlow<UiState<Task>> = _taskState.asStateFlow()
 
     init {
-        // Retrieve the taskId from navigation arguments
         val taskId = savedStateHandle.get<String>(ARG_TASK_ID)
-
-        taskId?.let { id ->
-            viewModelScope.launch {
-                // Collect the task from the use case. collectLatest cancels previous collection
-                getTaskByIdUseCase(id).collectLatest { fetchedTask ->
-                    _task.value = fetchedTask
-                }
-            }
-        } ?: run {
-            println("Error: taskId is null in TaskDetailViewModel.")
+        if (taskId != null) {
+            loadTaskDetails(taskId)
+        } else {
+            _taskState.value = UiState.Error("Invalid task ID")
         }
+    }
+
+    fun loadTaskDetails(taskId: String) {
+        _taskState.value = UiState.Loading
+        viewModelScope.launch {
+            try {
+                getTaskByIdUseCase(taskId).collectLatest { task ->
+                    _taskState.value = UiState.Success(data = task)
+                }
+            } catch (e: Exception) {
+                handleError(e)
+            }
+        }
+    }
+
+    private fun handleError(exception: Exception) {
+        Timber.e(exception, "Error fetching task details")
+        _taskState.value = UiState.Error("Failed to load task details. Please try again.")
     }
 }

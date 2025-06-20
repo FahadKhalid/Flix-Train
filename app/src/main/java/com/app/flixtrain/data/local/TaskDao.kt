@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import com.app.flixtrain.domain.model.Task
 import kotlinx.coroutines.flow.Flow
 
@@ -17,14 +18,14 @@ interface TaskDao {
     /**
      * Retrieves all tasks from the database.
      */
-    @Query("SELECT * FROM tasks ORDER BY dueDate ASC, priorityLevel DESC")
+    @Query("SELECT * FROM tasks")
     fun getAllTasks(): Flow<List<Task>>
 
     /**
      * Retrieves a single task by its ID.
      */
     @Query("SELECT * FROM tasks WHERE taskId = :taskId")
-    fun getTaskById(taskId: String): Flow<Task?>
+    fun getTaskById(taskId: String): Flow<Task>
 
     /**
      * Inserts a list of tasks into the database.
@@ -38,4 +39,10 @@ interface TaskDao {
      */
     @Query("DELETE FROM tasks")
     suspend fun deleteAllTasks()
+
+    @Transaction
+    suspend fun replaceAllTasks(tasks: List<Task>) {
+        deleteAllTasks()
+        insertAll(tasks)
+    }
 }

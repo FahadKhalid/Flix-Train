@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import com.app.flixtrain.data.local.TaskDatabase
 import com.app.flixtrain.data.local.TaskDao
+import com.app.flixtrain.data.local.constants.DatabaseConstants.DATABASE_NAME
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -25,7 +26,7 @@ object DatabaseModule {
         return Room.databaseBuilder(
             context,
             TaskDatabase::class.java,
-            "train_maintenance_db" // Database name
+            DATABASE_NAME
         ).build()
     }
 

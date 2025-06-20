@@ -1,4 +1,4 @@
-package com.app.flixtrain.ui.theme
+package com.app.flixtrain.presentation.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

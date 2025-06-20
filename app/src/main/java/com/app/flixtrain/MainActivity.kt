@@ -14,10 +14,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.app.flixtrain.presentation.navigation.NavigationConstants.ARG_TASK_ID
-import com.app.flixtrain.presentation.navigation.Screen
+import com.app.flixtrain.presentation.navigation.Route
 import com.app.flixtrain.presentation.ui.TaskDetailScreen
 import com.app.flixtrain.presentation.ui.TasksScreen
-import com.app.flixtrain.ui.theme.FlixTrainMaintainanceTrackerAppTheme
+import com.app.flixtrain.presentation.theme.FlixTrainMaintainanceTrackerAppTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -46,16 +46,16 @@ fun TrainMaintenanceAppNavHost() {
 
     NavHost(
         navController = navController,
-        startDestination = Screen.TasksList.route
+        startDestination = Route.TasksList.route
     ) {
         // Define the Composable for the Tasks List screen
-        composable(route = Screen.TasksList.route) {
+        composable(route = Route.TasksList.route) {
             TasksScreen(navController = navController)
         }
 
         // Define the Composable for the Task Detail screen
         composable(
-            route = Screen.TaskDetail.route, // Includes the {taskId} argument
+            route = Route.TaskDetail.route, // Includes the {taskId} argument
             arguments = listOf(navArgument(ARG_TASK_ID) {
                 type = NavType.StringType
             }) // Define the argument type

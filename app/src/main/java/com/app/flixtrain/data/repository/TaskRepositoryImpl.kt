@@ -4,7 +4,9 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import com.app.flixtrain.data.local.TaskDao
 import com.app.flixtrain.data.remote.TaskApiService
+import com.app.flixtrain.data.remote.model.TaskDto
 import com.app.flixtrain.data.util.toDomainModels
+import com.app.flixtrain.domain.core.Results
 import com.app.flixtrain.domain.model.Task
 import com.app.flixtrain.domain.repository.TaskRepository
 import kotlinx.coroutines.CoroutineDispatcher
@@ -16,78 +18,61 @@ import retrofit2.HttpException
 import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Named
+import timber.log.Timber
 
-/**
- * This class is responsible for coordinating data flow between the remote API
- * and the local Room database, providing an offline-first strategy.
- */
 class TaskRepositoryImpl @Inject constructor(
     private val taskDao: TaskDao,
     private val taskApiService: TaskApiService,
     private val connectivityManager: ConnectivityManager,
     @Named("IoDispatcher") private val ioDispatcher: CoroutineDispatcher
 ) : TaskRepository {
-
-    /**
-     * Checks if the device currently has active network connectivity.
-     */
-    private fun isNetworkAvailable(): Boolean {
-        val network = connectivityManager.activeNetwork ?: return false
-        val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
-        return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-    }
-
     override fun getTasks(): Flow<List<Task>> = flow {
-        // Emit data from local database first (offline-first principle)
-        taskDao.getAllTasks().collect { cachedTasks ->
-            emit(cachedTasks)
-        }
-
+        taskDao.getAllTasks().collect { emit(it) }
     }.flowOn(ioDispatcher)
 
-    /**
-     * Retrieves a single task by its ID from the local database.
-     */
-    override fun getTaskById(taskId: String): Flow<Task?> {
+    override fun getTaskById(taskId: String): Flow<Task> {
         return taskDao.getTaskById(taskId).flowOn(ioDispatcher)
     }
 
-    /**
-     * Triggers a synchronization of tasks from the remote source to the local database.
-     */
-    override suspend fun syncTasks() {
-        withContext(ioDispatcher) {
-            if (!isNetworkAvailable()) {
-                throw IOException("No internet connection available. Cannot sync data.")
-            }
+    override suspend fun syncTasks(): Results<Unit> = withContext(ioDispatcher) {
+        if (!isNetworkAvailable()) {
+            return@withContext Results.Error(IOException())
+        }
 
-            try {
-                val response = taskApiService.getTasks()
-                if (response.isSuccessful) {
-                    response.body()?.tasks?.let { taskDtos ->
-                        val tasks = taskDtos.toDomainModels()
-                        taskDao.deleteAllTasks()
-                        taskDao.insertAll(tasks)
-                    } ?: run {
-                        throw IOException("Server returned empty data.")
-                    }
+        return@withContext try {
+            val response = taskApiService.getTasks()
+            if (response.isSuccessful) {
+                val taskDtos = response.body()?.tasks
+                if (taskDtos.isNullOrEmpty()) {
+                    Results.Error(IOException("Empty response from server"))
                 } else {
-                    val errorBody = response.errorBody()?.string()
-                    val errorMessage =
-                        "API call failed with code: ${response.code()}, error: $errorBody"
-                    println(errorMessage)
-                    throw HttpException(response)
+                    replaceAllTasks(taskDtos)
+                    Results.Success(Unit)
                 }
-            } catch (e: HttpException) {
-                println("HTTP Exception during sync: ${e.message()}")
-                throw e
-            } catch (e: IOException) {
-                println("Network/IO Error during sync: ${e.message}")
-                throw e
-            } catch (e: Exception) {
-                println("An unexpected error occurred during sync: ${e.message}")
-                throw e
+            } else {
+                Results.Error(HttpException(response))
             }
+        } catch (e: Exception) {
+            Timber.e(e, "Sync failed")
+            Results.Error(e)
+        }
+    }
+
+    private suspend fun replaceAllTasks(taskDtos: List<TaskDto>) {
+        try {
+            val tasks = taskDtos.toDomainModels()
+            taskDao.replaceAllTasks(tasks)
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to replace tasks in the local database")
+        }
+    }
+
+    private suspend fun isNetworkAvailable(): Boolean {
+        return withContext(ioDispatcher) {
+            val network = connectivityManager.activeNetwork ?: return@withContext false
+            val capabilities =
+                connectivityManager.getNetworkCapabilities(network) ?: return@withContext false
+            capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
         }
     }
 }

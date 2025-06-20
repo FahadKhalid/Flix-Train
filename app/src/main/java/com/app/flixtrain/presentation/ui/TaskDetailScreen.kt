@@ -17,35 +17,28 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.app.flixtrain.domain.model.Task
 import com.app.flixtrain.presentation.viewmodel.TaskDetailViewModel
-import com.app.flixtrain.ui.theme.FlixTrainMaintainanceTrackerAppTheme
+import com.app.flixtrain.presentation.theme.FlixTrainMaintainanceTrackerAppTheme
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.app.flixtrain.R
+import com.app.flixtrain.presentation.common.UiState
 
 /**
  * Composable function for displaying the detailed information of a single maintenance task.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskDetailScreen(
     navController: NavController,
     viewModel: TaskDetailViewModel = hiltViewModel()
 ) {
-    // Collect the task from the ViewModel as Compose State
-    val task by viewModel.task.collectAsState()
+    val taskState by viewModel.taskState.collectAsState()
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        task?.taskType ?: stringResource(R.string.task_details),
-
-                        )
-                },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                    }
+            TaskDetailTopAppBar(
+                navController = navController,
+                title = when (taskState) {
+                    is UiState.Success -> (taskState as UiState.Success).data.taskType
+                    else -> stringResource(R.string.task_details)
                 }
             )
         },
@@ -58,19 +51,34 @@ fun TaskDetailScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Top
             ) {
-
-                task?.let { currentTask ->
-                    // If 'task' is not null, 'currentTask' will be non-nullable within this block
-                    TaskDetailsCard(task = currentTask)
-                } ?: run {
-                    // This block executes if 'task' is null
-                    CircularProgressIndicator(modifier = Modifier.size(48.dp))
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        stringResource(R.string.loading_tasks),
-                        style = MaterialTheme.typography.bodyLarge
-                    )
+                when (taskState) {
+                    is UiState.Loading -> {
+                        CircularProgressIndicator(modifier = Modifier.size(48.dp))
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(stringResource(R.string.loading_tasks), style = MaterialTheme.typography.bodyLarge)
+                    }
+                    is UiState.Success -> {
+                        TaskDetailsCard(task = (taskState as UiState.Success).data)
+                    }
+                    is UiState.Error -> {
+                        val errorMessage = (taskState as UiState.Error).message ?: stringResource(R.string.error_message)
+                        Text(text = errorMessage, color = MaterialTheme.colorScheme.error)
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
                 }
+            }
+        }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TaskDetailTopAppBar(navController: NavController, title: String) {
+    TopAppBar(
+        title = { Text(text = title, style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold)) },
+        navigationIcon = {
+            IconButton(onClick = { navController.popBackStack() }) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
             }
         }
     )
@@ -96,13 +104,13 @@ fun TaskDetailsCard(task: Task) {
                 text = task.taskType,
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 8.dp)
+                modifier = Modifier.padding(bottom = 12.dp) // Increased bottom padding
             )
-            DetailRow("Task ID:", task.taskId)
-            DetailRow("Train ID:", task.trainId)
-            DetailRow("Location:", task.location)
-            DetailRow("Due Date:", formatDate(task.dueDate))
-            DetailRow("Priority:", task.priorityLevel)
+            DetailRow(stringResource(R.string.TaskId), task.taskId)
+            DetailRow(stringResource(R.string.TrainId), task.trainId)
+            DetailRow(stringResource(R.string.Location), task.location)
+            DetailRow(stringResource(R.string.DueDate), formatDate(task.dueDate))
+            DetailRow(stringResource(R.string.Priority), task.priorityLevel)
             Spacer(modifier = Modifier.height(16.dp))
             Text(
                 text = stringResource(R.string.description_label),
@@ -112,7 +120,7 @@ fun TaskDetailsCard(task: Task) {
             Text(
                 text = task.description,
                 style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(top = 4.dp)
+                modifier = Modifier.padding(top = 8.dp) // Slightly more padding
             )
         }
     }

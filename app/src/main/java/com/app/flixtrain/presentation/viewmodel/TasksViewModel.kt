@@ -13,14 +13,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
-/**
- * ViewModel for the list of maintenance tasks.
- * It exposes the UI state (list of tasks, loading status, offline mode) to the UI
- * and handles fetching data from the domain layer.
- *
- */
 @HiltViewModel
 class TasksViewModel @Inject constructor(
     private val getAllTasksUseCase: GetAllTasksUseCase,
@@ -29,7 +24,6 @@ class TasksViewModel @Inject constructor(
 ) : ViewModel() {
 
     // MutableStateFlow to hold the current UI state of tasks
-    // Initial state is Loading
     private val _tasksUiState = MutableStateFlow<UiState<List<Task>>>(UiState.Loading)
     val tasksUiState: StateFlow<UiState<List<Task>>> = _tasksUiState.asStateFlow()
 
@@ -38,56 +32,70 @@ class TasksViewModel @Inject constructor(
     val isOfflineMode: StateFlow<Boolean> = _isOfflineMode.asStateFlow()
 
     init {
-        // Start observing network connectivity
         observeNetworkConnectivity()
-        // Start collecting tasks from the database
-        collectTasks()
+        loadInitialTasks()
     }
 
-    /**
-     * Observes network connectivity and triggers a refresh when connectivity becomes available.
-     */
+    // Observe network connectivity changes
     private fun observeNetworkConnectivity() {
         viewModelScope.launch {
             networkMonitor.isOnline
-                .distinctUntilChanged() // Only react when online status actually changes
+                .distinctUntilChanged()
                 .collect { isConnected ->
-                    _isOfflineMode.value = !isConnected
-                    if (isConnected) {
-                        // If network becomes available, attempt to refresh tasks
-                        if (_tasksUiState.value !is UiState.Loading) {
-                            refreshTasks()
-                        }
-                    }
+                    handleNetworkStateChange(isConnected)
                 }
         }
     }
 
-    private fun collectTasks() {
+    // Handle network state changes (offline/online)
+    private fun handleNetworkStateChange(isConnected: Boolean) {
+        _isOfflineMode.value = !isConnected
+        if (isConnected) {
+            attemptToRefreshTasks()
+        } else {
+            // Optional: Handle cases for offline
+            Timber.d("App is offline, showing cached data.")
+        }
+    }
+
+    // Try refreshing tasks if connected to network
+    private fun attemptToRefreshTasks() {
+        if (_tasksUiState.value is UiState.Loading) return
+
+        _tasksUiState.value = UiState.Loading
+        refreshTasks()
+    }
+    // Fetch tasks from database and update UI
+    private fun loadInitialTasks() {
         viewModelScope.launch {
-            getAllTasksUseCase().collect { fetchedTasks ->
-                _tasksUiState.value = UiState.Success(fetchedTasks)
+            getAllTasksUseCase().collect { tasks ->
+                if (tasks.isEmpty()) {
+                    Timber.d("No tasks in DB, trying to sync from remote.")
+                    refreshTasks()
+                } else {
+                    updateTasksState(tasks)
+                }
             }
         }
     }
 
-    /**
-     * Initiates a data synchronization from the remote source.
-     */
+    // Update the tasks UI state based on the fetched data
+    private fun updateTasksState(tasks: List<Task>) {
+        _tasksUiState.value = if (tasks.isEmpty()) {
+            UiState.Error("No tasks found.")
+        } else {
+            UiState.Success(tasks)
+        }
+    }
+
+    // Refresh tasks from the remote source and update DB
     private fun refreshTasks() {
         viewModelScope.launch {
-            // Only proceed with refresh if not already loading to prevent multiple concurrent syncs
-            if (_tasksUiState.value is UiState.Loading) {
-                return@launch
-            }
-
-            _tasksUiState.value = UiState.Loading
-
             try {
-                syncTasksUseCase()
-                // The tasksUiState will be updated to Success automatically by collectTasks()
+                syncTasksUseCase() // Sync tasks with the remote source
+                // This will automatically update UI state from collectTasks() as tasks are updated in DB
             } catch (e: Exception) {
-                _tasksUiState.value = UiState.Error(e.message ?: "An unknown error occurred during sync.")
+                _tasksUiState.value = UiState.Error("Failed to sync tasks: ${e.message}")
             }
         }
     }

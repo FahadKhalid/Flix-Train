@@ -17,15 +17,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.app.flixtrain.domain.model.Task
-import com.app.flixtrain.presentation.navigation.Screen
-import com.app.flixtrain.ui.theme.FlixTrainMaintainanceTrackerAppTheme
+import com.app.flixtrain.presentation.navigation.Route
+import com.app.flixtrain.presentation.theme.FlixTrainMaintainanceTrackerAppTheme
 import java.text.SimpleDateFormat
-import java.util.Date
 import java.util.Locale
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.app.flixtrain.R
 import com.app.flixtrain.presentation.common.UiState
 import com.app.flixtrain.presentation.viewmodel.TasksViewModel
+import timber.log.Timber
 
 /**
  * Composable function for displaying the list of train maintenance tasks.
@@ -64,48 +64,57 @@ fun TasksScreen(
                     )
                 }
 
-                // Handling the UI states
                 when (tasksUiState) {
-                    is UiState.Loading -> {
-                        LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(stringResource(R.string.loading_tasks), style = MaterialTheme.typography.bodyMedium)
-                    }
+                    is UiState.Loading -> LoadingState()
+                    is UiState.Success -> SuccessState((tasksUiState as UiState.Success<List<Task>>).data, isOfflineMode, navController)
+                    is UiState.Error -> ErrorState((tasksUiState as UiState.Error).message)
+                }
 
-                    is UiState.Success -> {
-                        val tasks =
-                            (tasksUiState as UiState.Success<List<Task>>).data
-                        if (tasks.isEmpty()) {
-                            if (isOfflineMode) {
-                                Text(
-                                    stringResource(R.string.offline_no_data_initial_sync),
-                                    color = MaterialTheme.colorScheme.error,
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    modifier = Modifier.padding(16.dp)
-                                )
-                            }
-                        } else {
-                            LazyColumn(modifier = Modifier.fillMaxSize()) {
-                                items(tasks) { task ->
-                                    TaskItem(task = task) { taskId ->
-                                        navController.navigate(Screen.TaskDetail.createRoute(taskId))
-                                    }
-                                }
-                            }
-                        }
-                    }
+            }
+        }
+    )
+}
 
-                    is UiState.Error -> {
-                        Text(
-                            "Error: ${(tasksUiState as UiState.Error).message ?: "Unknown error"}",
-                            color = MaterialTheme.colorScheme.error,
-                            style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier.padding(16.dp)
-                        )
-                    }
+@Composable
+fun LoadingState() {
+    LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+    Spacer(modifier = Modifier.height(8.dp))
+    Text(stringResource(R.string.loading_tasks), style = MaterialTheme.typography.bodyMedium)
+}
+
+@Composable
+fun SuccessState(
+    tasks: List<Task>,
+    isOfflineMode: Boolean,
+    navController: NavController
+) {
+    if (tasks.isEmpty()) {
+        if (isOfflineMode) {
+            Text(
+                stringResource(R.string.offline_no_data_initial_sync),
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.padding(16.dp)
+            )
+        }
+    } else {
+        LazyColumn(modifier = Modifier.fillMaxSize()) {
+            items(tasks) { task ->
+                TaskItem(task = task) { taskId ->
+                    navController.navigate(Route.TaskDetail.createRoute(taskId))
                 }
             }
         }
+    }
+}
+
+@Composable
+fun ErrorState(errorMessage: String?) {
+    Text(
+        text = errorMessage ?: stringResource(R.string.unknown_error),
+        color = MaterialTheme.colorScheme.error,
+        style = MaterialTheme.typography.bodyLarge,
+        modifier = Modifier.padding(16.dp)
     )
 }
 
@@ -116,32 +125,34 @@ fun TasksScreen(
 fun TaskItem(task: Task, onClick: (String) -> Unit) {
     Card(
         modifier = Modifier
-            .fillMaxWidth()
             .padding(vertical = 4.dp)
             .clickable { onClick(task.taskId) },
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
+        Column(modifier = Modifier.padding(16.dp)) {
             Text(
                 text = task.taskType,
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold
             )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = "Train: ${task.trainId}",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Text(
-                text = "Priority: ${task.priorityLevel}",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            TaskDetailRow(label = stringResource(R.string.Train), value = task.trainId)
+            TaskDetailRow(label = stringResource(R.string.Priority), value = task.priorityLevel)
         }
+    }
+}
+
+@Composable
+fun TaskDetailRow(label: String, value: String) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = "$label: $value",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
 
@@ -153,10 +164,11 @@ fun formatDate(dateString: String): String {
     return try {
         val parser = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         val formatter = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
-        val date: Date = parser.parse(dateString) ?: Date()
-        formatter.format(date)
+        val date = parser.parse(dateString)
+        date?.let { formatter.format(it) } ?: dateString
     } catch (e: Exception) {
-        dateString // Return original if parsing fails
+        Timber.e("DateFormat", "Error parsing date: $dateString", e)
+        dateString // Return original string in case of an error
     }
 }
 
@@ -165,7 +177,6 @@ fun formatDate(dateString: String): String {
 @Composable
 fun TasksScreenPreview() {
     FlixTrainMaintainanceTrackerAppTheme {
-        // Provide dummy data for preview
         val sampleTasks = listOf(
             Task(
                 "1",
@@ -195,12 +206,13 @@ fun TasksScreenPreview() {
                 "Adjust wheel alignment for smooth operation."
             )
         )
+
         // In a real preview, you might mock the ViewModel's state directly
         Column {
             TopAppBar(title = { Text("Train Maintenance Tasks (Preview)") })
             LazyColumn(modifier = Modifier.padding(16.dp)) {
                 items(sampleTasks) { task ->
-                    TaskItem(task = task) { /* No-op for preview click */ }
+                    TaskItem(task = task, onClick = { /* No-op for preview click */ })
                 }
             }
         }

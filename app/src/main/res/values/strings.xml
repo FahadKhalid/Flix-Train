@@ -15,4 +15,12 @@
     <string name="due_date_label">Due Date:</string>
     <string name="priority_label">Priority:</string>
     <string name="description_label">Description:</string>
+    <string name="unknown_error">Unknown error</string>
+    <string name="error_message">Error: %1$s</string>
+    <string name="Train">Train:</string>
+    <string name="Priority">Priority:</string>
+    <string name="TaskId">Task ID:</string>
+    <string name="TrainId">Train ID:</string>
+    <string name="Location">Location:</string>
+    <string name="DueDate">Due Date:</string>
 </resources>

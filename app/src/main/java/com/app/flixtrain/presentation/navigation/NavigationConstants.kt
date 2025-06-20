@@ -8,8 +8,8 @@ object NavigationConstants {
 
     // --- Routes ---
     const val ROUTE_TASKS_LIST = "tasks_list"
-    const val ROUTE_TASK_DETAIL = "task_detail" // Base route for detail screen
+    const val ROUTE_TASK_DETAIL = "task_detail"
 
     // --- Arguments ---
-    const val ARG_TASK_ID = "taskId" // Argument key for task ID
+    const val ARG_TASK_ID = "taskId"
 }
