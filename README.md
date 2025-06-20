@@ -28,13 +28,12 @@ A task management app for tracking and syncing train maintenance tasks using cle
   </tr>
 </table>
 
-## 🧱 Architecture
+## 🚀 Features
 
-- **MVVM Pattern**
-- **Clean Architecture**
-    - `data`: Local DB (Room), Remote API, Repository implementation
-    - `domain`: Business logic, models, use cases
-    - `presentation`: UI, ViewModels, Navigation
+- View all tasks
+- View task details
+- Sync tasks with the server
+- Offline support
 
 ## 🔧 Tech Stack
 
@@ -45,6 +44,16 @@ A task management app for tracking and syncing train maintenance tasks using cle
 - Hilt (DI)
 - Coroutines + Flows
 
+## 🧱 Architecture
+
+- **MVVM Pattern**
+- **Clean Architecture**
+    - `data`: Local DB (Room), Remote API, Repository implementation
+    - `domain`: Business logic, models, use cases
+    - `presentation`: UI, ViewModels, Navigation
+
+
+
 ## 📁 Key Modules
 
 - **domain/**
@@ -54,11 +63,4 @@ A task management app for tracking and syncing train maintenance tasks using cle
 - **presentation/**
     - `ui`, `viewmodel`, `navigation`, `common`
 
-## 🚀 Features
-
-- View all tasks
-- View task details
-- Sync tasks with the server
-- Offline support
-
-Thnak you!
+Thank you!
